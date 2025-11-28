@@ -6,7 +6,6 @@ import createHttpError from "http-errors";
 import bookModel from "./bookModel.js";
 import fs from "node:fs";
 import type { AuthRequest } from "../middlewares/authenticate.js";
-import { log } from "node:console";
 
 // -----------------------------
 // Types
