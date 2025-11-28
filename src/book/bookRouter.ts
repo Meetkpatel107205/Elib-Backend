@@ -3,6 +3,7 @@ import { createBook } from './bookController.js';
 import path from 'node:path';
 import multer from 'multer';
 import { fileURLToPath } from "url";
+import authenticate from '../middlewares/authenticate.js';
 
 // Fix __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -20,7 +21,7 @@ const upload = multer({
 // Routes :-
 
 // api/books
-bookRouter.post('/', upload.fields([
+bookRouter.post('/', authenticate, upload.fields([
     { name: 'coverImage', maxCount: 1 },
     { name: 'file', maxCount: 1 },
 ]), createBook);
