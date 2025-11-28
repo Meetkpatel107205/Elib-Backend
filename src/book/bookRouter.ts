@@ -1,5 +1,5 @@
 import express from 'express';
-import { createBook, updateBook } from './bookController.js';
+import { createBook, listBooks, updateBook } from './bookController.js';
 import path from 'node:path';
 import multer from 'multer';
 import { fileURLToPath } from "url";
@@ -19,6 +19,8 @@ const upload = multer({
 });
 
 // Routes :-
+
+bookRouter.get('/', listBooks);
 
 // api/books
 bookRouter.post('/', authenticate, upload.fields([
