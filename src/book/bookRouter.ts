@@ -1,5 +1,5 @@
 import express from 'express';
-import { createBook, listBooks, updateBook } from './bookController.js';
+import { createBook, getSingleBook, listBooks, updateBook } from './bookController.js';
 import path from 'node:path';
 import multer from 'multer';
 import { fileURLToPath } from "url";
@@ -20,9 +20,12 @@ const upload = multer({
 
 // Routes :-
 
+// api/books
+
 bookRouter.get('/', listBooks);
 
-// api/books
+bookRouter.get('/:bookId', getSingleBook);
+
 bookRouter.post('/', authenticate, upload.fields([
     { name: 'coverImage', maxCount: 1 },
     { name: 'file', maxCount: 1 },
