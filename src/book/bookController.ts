@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import createHttpError from "http-errors";
 import bookModel from "./bookModel.js";
 import fs from "node:fs";
+import type { AuthRequest } from "../middlewares/authenticate.js";
 
 // -----------------------------
 // Types
@@ -101,10 +102,12 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
 
         try
         {
+            const _req = req as AuthRequest;
+
             newBook = await bookModel.create({
                 title,
                 genre,
-                author: "69297358a71e75921e020980",
+                author: _req.userId,
                 coverImage: uploadedCover.secure_url,
                 file: uploadedPDF.secure_url,
             });
