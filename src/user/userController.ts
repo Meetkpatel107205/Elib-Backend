@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
+import bcrypt from "bcrypt";
 import userModel from "./userModel.js";
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
@@ -22,6 +23,10 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
         const error = createHttpError(400, "User already exists with this email.");
         return next(error);
     }
+
+    // password -> hash
+    // password : secret -> ssssss, secret -> ssssss => salt => secret -> sfdfsfsdf, secret -> fgjasdgjs 
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // 2. Process :-
 
