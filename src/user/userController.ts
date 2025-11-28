@@ -66,7 +66,7 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
             { expiresIn: "7d", algorithm: "HS256"});
 
         // 3. Response :-
-        res.json({ accessToken: token });
+        res.status(201).json({ accessToken: token });
     }
     // catch(err)
     catch
