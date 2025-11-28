@@ -60,10 +60,10 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try
     {
         // Token Generation - JWT
-        const token = jwt.sign(
-            { sub: newUser._id },
-            config.jwtSecret as string,
-            { expiresIn: "7d", algorithm: "HS256"});
+        const token = jwt.sign({ sub: newUser._id }, config.jwtSecret as string, {
+            expiresIn: "7d",
+            algorithm: "HS256"
+        });
 
         // 3. Response :-
         res.status(201).json({ accessToken: token });
@@ -75,4 +75,64 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-export { createUser };
+const loginUser = async (req: Request, res: Response, next: NextFunction) => {
+    
+    const { email, password } = req.body;
+
+    // 1. Validation
+    if (!email || !password)
+    {
+        return next(createHttpError(400, "All fields are required"));
+    }
+
+    let user: User | null;
+
+    // 2. Check if user exists
+    try
+    {
+        user = await userModel.findOne({ email });
+
+        if(!user)
+        {
+            return next(createHttpError(404, "User not found."));
+        }
+    }
+    catch
+    {
+        return next(createHttpError(500, "Error while fetching user"));
+    }
+
+    // 3. Compare password
+    let isMatch: boolean;
+
+    try
+    {
+        isMatch = await bcrypt.compare(password, user.password);
+
+        if(!isMatch)
+        {
+            return next(createHttpError(400, "Username or password incorrect"));
+        }
+    }
+    catch
+    {
+        return next(createHttpError(500, "Error while comparing passwords"));
+    }
+
+    try
+    {
+        const token = jwt.sign({ sub: user._id }, config.jwtSecret as string, {
+                expiresIn: "7d",
+                algorithm: "HS256",
+        });
+
+        // 5. Response
+        return res.json({ accessToken: token });
+    }
+    catch
+    {
+        return next(createHttpError(500, "Error while signing the JWT token"));
+    }
+};
+
+export { createUser, loginUser };
