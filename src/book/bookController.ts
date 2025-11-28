@@ -184,7 +184,7 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
 
         const uploadedFile = files.coverImage[0];
         const filename = uploadedFile.filename;
-        const coverMimeType = uploadedFile.mimetype.split("/").at(-1);
+        const coverMimeType = uploadedFile.mimetype.split("/").at(-1) ?? "jpg";
 
         const filePath = path.resolve(
             __dirname,
