@@ -1,5 +1,5 @@
 import express from 'express';
-import { createBook, getSingleBook, listBooks, updateBook } from './bookController.js';
+import { createBook, deleteBook, getSingleBook, listBooks, updateBook } from './bookController.js';
 import path from 'node:path';
 import multer from 'multer';
 import { fileURLToPath } from "url";
@@ -35,5 +35,7 @@ bookRouter.patch('/:bookId', authenticate, upload.fields([
     { name: 'coverImage', maxCount: 1 },
     { name: 'file', maxCount: 1 },
 ]), updateBook);
+
+bookRouter.delete('/:bookId', authenticate, deleteBook);
 
 export default bookRouter;

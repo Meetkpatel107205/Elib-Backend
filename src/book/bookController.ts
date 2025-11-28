@@ -6,6 +6,7 @@ import createHttpError from "http-errors";
 import bookModel from "./bookModel.js";
 import fs from "node:fs";
 import type { AuthRequest } from "../middlewares/authenticate.js";
+import { log } from "node:console";
 
 // -----------------------------
 // Types
@@ -293,4 +294,66 @@ const getSingleBook = async (req: Request, res: Response, next: NextFunction) =>
     }
 };
 
-export { createBook, updateBook, listBooks, getSingleBook };
+const deleteBook = async (req: Request, res: Response, next: NextFunction) => {
+    try
+    {
+        const bookId = req.params.bookId;
+
+        if(!bookId)
+        {
+            return next(createHttpError(400, "BookId is required."));
+        }
+
+        const book = await bookModel.findOne({ _id: bookId });
+
+        if(!book)
+        {
+            return next(createHttpError(404, "Book not found."));
+        }
+
+        // Check access
+        const _req = req as AuthRequest;
+        if(book.author.toString() !== _req.userId)
+        {
+            return next(createHttpError(403, "You cannot delete others book."));
+        }
+
+        // book-covers/tl1s2opptag6w8ruiuhu
+        // https://res.cloudinary.com/djgwsmlca/image/upload/v1764356914/book-covers/tl1s2opptag6w8ruiuhu.png
+        const coverFileSplits = book.coverImage.split("/");
+        const coverImagePublicId = coverFileSplits.at(-2) + "/" + coverFileSplits.at(-1)?.split(".").at(-2);
+
+        // console.log("coverImagePublicId", coverImagePublicId);
+
+        // book-pdfs/grvaqpyvcmf98fhqexxw.pdf
+        // https://res.cloudinary.com/djgwsmlca/raw/upload/v1764356915/book-pdfs/grvaqpyvcmf98fhqexxw.pdf
+        const bookFileSplits = book.file.split("/");
+        const bookFilePublicId = bookFileSplits.at(-2) + "/" + bookFileSplits.at(-1);
+
+        // console.log("bookFilePublicId", bookFilePublicId);
+
+        try
+        {
+            await cloudinary.uploader.destroy(coverImagePublicId);
+            await cloudinary.uploader.destroy(bookFilePublicId, {
+                resource_type: "raw"
+            });
+        }
+        // catch (err)
+        catch
+        {
+            return next(createHttpError(500, "Failed to delete book files from Cloudinary"));
+        };
+
+        await bookModel.deleteOne({ _id: bookId });
+
+        return res.sendStatus(204);
+    }
+    // catch (err)
+    catch
+    {
+        return next(createHttpError(500, "Something went wrong while processing the request"));
+    }
+};
+
+export { createBook, updateBook, listBooks, getSingleBook, deleteBook };

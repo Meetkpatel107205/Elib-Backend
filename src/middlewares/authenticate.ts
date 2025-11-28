@@ -12,7 +12,7 @@ const authenticate = (req: Request, res: Response, next: NextFunction) => {
 
     if(!token)
     {
-        return next(createHttpError(401, "Authorization toke is required."));
+        return next(createHttpError(401, "Authorization token is required."));
     }
 
     try
