@@ -4,6 +4,8 @@ import userRouter from './user/userRouter.js';
 
 const app = express();
 
+app.use(express.json());
+
 // Routes :-
 
 // Http Methods :- GET, POST, PUT, PATCH, DELETE
