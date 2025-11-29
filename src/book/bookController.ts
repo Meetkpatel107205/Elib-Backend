@@ -142,6 +142,31 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
+function getPublicIdFromUrl(url: string): string {
+    if (!url) return "";
+
+    const parts = url.split("/");
+    const folder = parts.at(-2) ?? "";
+    const filenameWithExt = parts.at(-1) ?? "";
+
+    const isRaw = url.includes("/raw/upload/"); // PDF, ZIP, RAW files
+    const isImage = url.includes("/image/upload/");
+
+    if (isRaw) {
+        // RAW files must keep extension
+        return `${folder}/${filenameWithExt}`;
+    }
+
+    if (isImage) {
+        // Images remove extension
+        const filename = filenameWithExt.split(".")[0] ?? "";
+        return `${folder}/${filename}`;
+    }
+
+    // fallback (safe)
+    return `${folder}/${filenameWithExt}`;
+};
+
 const updateBook = async (req: Request, res: Response, next: NextFunction) => {
 
     const __filename = fileURLToPath(import.meta.url);
@@ -175,12 +200,18 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
     // --------------------------------------------------------------------
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
-    let completeCoverImage = "";
-
     // --------------------------------------------------------------------
     // UPDATE COVER IMAGE
     // --------------------------------------------------------------------
+    let completeCoverImage = "";
+
     if (files?.coverImage?.[0]) {
+
+        // Delete old image from cloudinary
+        if (book.coverImage) {
+            const oldCover = getPublicIdFromUrl(book.coverImage);
+            await cloudinary.uploader.destroy(oldCover);
+        }
 
         const uploadedFile = files.coverImage[0];
         const filename = uploadedFile.filename;
@@ -211,6 +242,11 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
 
     if (files?.file?.[0])
     {
+        // Delete old PDF
+        if (book.file) {
+            const oldPdf = getPublicIdFromUrl(book.file);
+            await cloudinary.uploader.destroy(oldPdf, { resource_type: "raw" });
+        }
 
         const uploadedPDF = files.file[0];
         const pdfFilename = uploadedPDF.filename;
