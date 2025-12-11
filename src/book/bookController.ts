@@ -142,6 +142,48 @@ const createBook = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
+const listBooks = async (req: Request, res: Response, next: NextFunction) => {
+    try
+    {
+        // todo: add pagination
+        const book = await bookModel.find().populate("author", "name");
+        
+        res.json(book);
+
+    }
+    // catch (err)
+    catch
+    {
+        return next(createHttpError(500, "Error while getting a book"))
+    }
+};
+
+const getSingleBook = async (req: Request, res: Response, next: NextFunction) => {
+    try
+    {
+        const bookId = req.params.bookId;
+
+        if(!bookId)
+        {
+            return next(createHttpError(400, "BookId is required."));
+        }
+
+        const book = await bookModel.findOne({ _id: bookId });
+
+        if(!book)
+        {
+            return next(createHttpError(404, "Book not found."));
+        }
+
+        res.json(book);
+    }
+    // catch (err)
+    catch
+    {
+        return next(createHttpError(500, "Error while getting a book"));
+    }
+};
+
 function getPublicIdFromUrl(url: string): string {
     if (!url) return "";
 
@@ -285,48 +327,6 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
     );
 
     res.json(updateBook);
-};
-
-const listBooks = async (req: Request, res: Response, next: NextFunction) => {
-    try
-    {
-        // todo: add pagination
-        const book = await bookModel.find();
-        
-        res.json(book);
-
-    }
-    // catch (err)
-    catch
-    {
-        return next(createHttpError(500, "Error while getting a book"))
-    }
-};
-
-const getSingleBook = async (req: Request, res: Response, next: NextFunction) => {
-    try
-    {
-        const bookId = req.params.bookId;
-
-        if(!bookId)
-        {
-            return next(createHttpError(400, "BookId is required."));
-        }
-
-        const book = await bookModel.findOne({ _id: bookId });
-
-        if(!book)
-        {
-            return next(createHttpError(404, "Book not found."));
-        }
-
-        res.json(book);
-    }
-    // catch (err)
-    catch
-    {
-        return next(createHttpError(500, "Error while getting a book"));
-    }
 };
 
 const deleteBook = async (req: Request, res: Response, next: NextFunction) => {

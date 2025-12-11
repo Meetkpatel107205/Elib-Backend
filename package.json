@@ -5,7 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --exec tsx server.ts"
+    "dev": "nodemon --exec tsx server.ts",
+    "build": "tsc",
+    "docker:publish": "docker build -t meetkpatel10725/elib-backend:v2 --platform linux/amd64 . && docker push meetkpatel10725/elib-backend:v2"
   },
   "keywords": [
     "rest",
