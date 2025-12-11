@@ -29,7 +29,7 @@ RUN chown -R node:node /app && chmod -R 755 /app
 
 RUN npm install pm2 -g
 
-COPY ecosystem.config.cjs .
+COPY ./ecosystem.config.cjs .
 
 USER node
 
